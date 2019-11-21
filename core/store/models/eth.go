@@ -74,6 +74,33 @@ type logMarshaling struct {
 	Index       hexutil.Uint
 }
 
+type Transaction struct {
+	Transaction types.Transaction
+	From        common.Address
+	SentAt      uint64
+	SignedRaw   string
+}
+
+func (t *Transaction) Tx() *Tx {
+	ethTx := &t.Transaction
+	return &Tx{
+		From:        t.From,
+		To:          *ethTx.To(),
+		Nonce:       ethTx.Nonce(),
+		Data:        ethTx.Data(),
+		Value:       NewBig(ethTx.Value()),
+		GasLimit:    ethTx.Gas(),
+		GasPrice:    NewBig(ethTx.GasPrice()),
+		Hash:        ethTx.Hash(),
+		SentAt:      t.SentAt,
+		SignedRawTx: t.SignedRaw,
+	}
+}
+
+func (t *Transaction) Hash() common.Hash {
+	return t.Transaction.Hash()
+}
+
 // Tx contains fields necessary for an Ethereum transaction with
 // an additional field for the TxAttempt.
 type Tx struct {
